@@ -73,7 +73,7 @@ class Component extends BaseComponent
     private function listTables(Client $client, string $bucket) : array
     {
         $tables = $client->listTables($bucket);
-        array_walk($tables, function (&$value) {
+        array_walk($tables, function (&$value) : void {
             $value = $value['name'];
         });
         return $tables;

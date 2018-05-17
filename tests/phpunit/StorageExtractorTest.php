@@ -137,7 +137,7 @@ class StorageExtractorTest extends TestCase
             'parameters' => [
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
-                'tables' => ['some-table-3']
+                'tables' => ['some-table-3'],
             ],
         ];
         $baseDir = $temp->getTmpFolder();
@@ -167,8 +167,8 @@ class StorageExtractorTest extends TestCase
                 'metadata' => [],
                 'column_metadata' => [
                     'id' => [],
-                    'bar' => []
-                ]
+                    'bar' => [],
+                ],
             ],
             $data
         );
@@ -184,7 +184,7 @@ class StorageExtractorTest extends TestCase
             'parameters' => [
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
-                'tables' => ['non-existent-table']
+                'tables' => ['non-existent-table'],
             ],
         ];
         $baseDir = $temp->getTmpFolder();
@@ -232,7 +232,7 @@ class StorageExtractorTest extends TestCase
             'parameters' => [
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
-                'tables' => ['some-table-4']
+                'tables' => ['some-table-4'],
             ],
         ];
         $baseDir = $temp->getTmpFolder();
@@ -269,7 +269,7 @@ class StorageExtractorTest extends TestCase
                         [
                             'key' => 'another-key',
                             'value' => 'another-value',
-                        ]
+                        ],
                     ],
                 ],
             ],
