@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MyComponent;
+namespace Keboola\StorageExtractor;
 
 use Keboola\Component\Config\BaseConfigDefinition;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
@@ -16,9 +16,9 @@ class ConfigDefinition extends BaseConfigDefinition
         /** @noinspection NullPointerExceptionInspection */
         $parametersNode
             ->children()
-                ->scalarNode('foo')
-                    ->defaultValue('baz')
-                ->end()
+            ->scalarNode('#token')->isRequired()->cannotBeEmpty()->end()
+            ->scalarNode('url')->isRequired()->cannotBeEmpty()->end()
+            ->arrayNode('tables')->prototype('scalar')->end()->end()
             ->end()
         ;
         // @formatter:on
