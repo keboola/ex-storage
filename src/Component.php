@@ -57,14 +57,21 @@ class Component extends BaseComponent
             $metadata = new Metadata($client);
             $columnMetadata = [];
             foreach ($tableInfo['columns'] as $column) {
-                $columnMetadata[$column] = $this->filterMetadata(
+                $colMetadata = $this->filterMetadata(
                     $metadata->listColumnMetadata($tableId . '.' . $column)
                 );
+                if ($colMetadata) {
+                    $columnMetadata[$column] = $colMetadata;
+                }
             }
             $tableMetadata = $this->filterMetadata($metadata->listTableMetadata($tableId));
             $options = new OutTableManifestOptions();
-            $options->setColumnMetadata($columnMetadata);
-            $options->setMetadata($tableMetadata);
+            if ($columnMetadata) {
+                $options->setColumnMetadata($columnMetadata);
+            }
+            if ($tableMetadata) {
+                $options->setMetadata($tableMetadata);
+            }
             $this->getManifestManager()->writeTableManifest($tableName . '.csv', $options);
             $this->getLogger()->info('Table ' . $tableName . ' processed.');
         }

@@ -75,7 +75,7 @@ class StorageExtractorTest extends TestCase
         );
         self::assertFileExists($baseDir . '/out/tables/some-table-1.csv.manifest');
         $data = json_decode(file_get_contents($baseDir . '/out/tables/some-table-1.csv.manifest'), true);
-        self::assertEquals(['metadata' => [], 'column_metadata' => ['id' => [], 'name' => []]], $data);
+        self::assertEquals([], $data);
     }
 
     public function testInvalidToken(): void
@@ -162,16 +162,7 @@ class StorageExtractorTest extends TestCase
         self::assertFileNotExists($baseDir . '/out/tables/some-table-2.csv.manifest');
         self::assertFileExists($baseDir . '/out/tables/some-table-3.csv.manifest');
         $data = json_decode(file_get_contents($baseDir . '/out/tables/some-table-3.csv.manifest'), true);
-        self::assertEquals(
-            [
-                'metadata' => [],
-                'column_metadata' => [
-                    'id' => [],
-                    'bar' => [],
-                ],
-            ],
-            $data
-        );
+        self::assertEquals([], $data);
     }
 
     public function testTableInvalidFilter(): void
@@ -264,7 +255,6 @@ class StorageExtractorTest extends TestCase
                     ],
                 ],
                 'column_metadata' => [
-                    'id' => [],
                     'foo' => [
                         [
                             'key' => 'another-key',
