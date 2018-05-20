@@ -53,6 +53,7 @@ class StorageExtractorTest extends TestCase
             'parameters' => [
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
+                'tableName' => 'some-table-1',
             ],
         ];
         $baseDir = $temp->getTmpFolder();
@@ -88,6 +89,7 @@ class StorageExtractorTest extends TestCase
             'parameters' => [
                 '#token' => 'invalid',
                 'url' => getenv('KBC_TEST_URL'),
+                'tableName' => 'invalid',
             ],
         ];
         $baseDir = $temp->getTmpFolder();
@@ -109,6 +111,7 @@ class StorageExtractorTest extends TestCase
             'parameters' => [
                 '#token' => getenv('KBC_TEST_WRITE_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
+                'tableName' => 'invalid',
             ],
         ];
         $baseDir = $temp->getTmpFolder();
@@ -116,56 +119,11 @@ class StorageExtractorTest extends TestCase
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
         self::expectException(UserException::class);
-        self::expectExceptionMessage('The token does not have only read permissions to the bucket in.c-ex-storage');
+        self::expectExceptionMessage('The token must have read-only permissions to the bucket "in.c-ex-storage".');
         $app->run();
     }
 
-    public function testTableFilter(): void
-    {
-        $temp = new Temp('ex-storage');
-        $temp->initRunFolder();
-        $fs = new Filesystem();
-        $fs->dumpFile($temp->getTmpFolder() . '/tmp.csv', "\"id\",\"foo\"\n\"1\",\"aa\"\n\"2\",\"bb\"\n\"3\",\"cc\"\n");
-        $csv = new CsvFile($temp->getTmpFolder() . '/tmp.csv');
-        $this->client->createTable(getenv('KBC_TEST_BUCKET'), 'some-table-2', $csv, ['primaryKey' => 'id']);
-        $fs->dumpFile($temp->getTmpFolder() . '/tmp.csv', "\"id\",\"bar\"\n\"1\",\"x\"\n\"2\",\"y\"\n\"3\",\"z\"\n");
-        $csv = new CsvFile($temp->getTmpFolder() . '/tmp.csv');
-        $this->client->createTable(getenv('KBC_TEST_BUCKET'), 'some-table-3', $csv, ['primaryKey' => 'id']);
-
-        $configFile = [
-            'action' => 'run',
-            'parameters' => [
-                '#token' => getenv('KBC_TEST_TOKEN'),
-                'url' => getenv('KBC_TEST_URL'),
-                'tables' => ['some-table-3'],
-            ],
-        ];
-        $baseDir = $temp->getTmpFolder();
-        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
-        putenv('KBC_DATADIR=' . $baseDir);
-        $app = new Component(new NullLogger());
-        $app->run();
-        self::assertFileExists($baseDir . '/out/tables/some-table-3.csv');
-        self::assertFileNotExists($baseDir . '/out/tables/some-table-2.csv');
-        $csv = new CsvFile($baseDir . '/out/tables/some-table-3.csv');
-        $rows = iterator_to_array($csv);
-        sort($rows);
-        self::assertEquals(
-            [
-                ['1', 'x'],
-                ['2', 'y'],
-                ['3', 'z'],
-                ['id', 'bar'],
-            ],
-            $rows
-        );
-        self::assertFileNotExists($baseDir . '/out/tables/some-table-2.csv.manifest');
-        self::assertFileExists($baseDir . '/out/tables/some-table-3.csv.manifest');
-        $data = json_decode(file_get_contents($baseDir . '/out/tables/some-table-3.csv.manifest'), true);
-        self::assertEquals([], $data);
-    }
-
-    public function testTableInvalidFilter(): void
+    public function testTableNoneExistent(): void
     {
         $temp = new Temp('ex-storage');
         $temp->initRunFolder();
@@ -175,15 +133,36 @@ class StorageExtractorTest extends TestCase
             'parameters' => [
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
-                'tables' => ['non-existent-table'],
+                'tableName' => 'non-existent-table',
             ],
         ];
         $baseDir = $temp->getTmpFolder();
         $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
+        self::expectException(UserException::class);
         self::expectExceptionMessage('The table non-existent-table not found in the bucket in.c-ex-storage');
+        $app->run();
+    }
+
+    public function testTableMissing(): void
+    {
+        $temp = new Temp('ex-storage');
+        $temp->initRunFolder();
+        $fs = new Filesystem();
+        $configFile = [
+            'action' => 'run',
+            'parameters' => [
+                '#token' => getenv('KBC_TEST_TOKEN'),
+                'url' => getenv('KBC_TEST_URL'),
+            ],
+        ];
+        $baseDir = $temp->getTmpFolder();
+        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        putenv('KBC_DATADIR=' . $baseDir);
+        $app = new Component(new NullLogger());
         self::expectException(UserException::class);
+        self::expectExceptionMessage('The tableName parameter must be provided.');
         $app->run();
     }
 
@@ -223,7 +202,7 @@ class StorageExtractorTest extends TestCase
             'parameters' => [
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
-                'tables' => ['some-table-4'],
+                'tableName' => 'some-table-4',
             ],
         ];
         $baseDir = $temp->getTmpFolder();
@@ -322,5 +301,49 @@ class StorageExtractorTest extends TestCase
         self::expectException(UserException::class);
         self::expectExceptionMessage('Invalid access token');
         $app->run();
+    }
+
+    public function testChangedSince(): void
+    {
+        $temp = new Temp('ex-storage');
+        $temp->initRunFolder();
+        $fs = new Filesystem();
+        $fs->dumpFile($temp->getTmpFolder() . '/tmp.csv', "\"id\",\"name\"\n\"1\",\"a\"\n\"2\",\"b\"\n\"3\",\"c\"\n");
+        $csv = new CsvFile($temp->getTmpFolder() . '/tmp.csv');
+        $this->client->createTable(getenv('KBC_TEST_BUCKET'), 'some-table-1', $csv, ['primaryKey' => 'id']);
+        $fs->dumpFile($temp->getTmpFolder() . '/tmp.csv', "\"id\",\"name\"\n\"5\",\"x\"\n\"6\",\"y\"\n");
+        $timestamp = time();
+        $csv = new CsvFile($temp->getTmpFolder() . '/tmp.csv');
+        $this->client->writeTable(getenv('KBC_TEST_BUCKET') . '.some-table-1', $csv, ['incremental' => true]);
+
+        $configFile = [
+            'action' => 'run',
+            'parameters' => [
+                '#token' => getenv('KBC_TEST_TOKEN'),
+                'url' => getenv('KBC_TEST_URL'),
+                'tableName' => 'some-table-1',
+                'changedSince' => $timestamp,
+            ],
+        ];
+        $baseDir = $temp->getTmpFolder();
+        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        putenv('KBC_DATADIR=' . $baseDir);
+        $app = new Component(new NullLogger());
+        $app->run();
+        self::assertFileExists($baseDir . '/out/tables/some-table-1.csv');
+        $csv = new CsvFile($baseDir . '/out/tables/some-table-1.csv');
+        $rows = iterator_to_array($csv);
+        sort($rows);
+        self::assertEquals(
+            [
+                ['5', 'x'],
+                ['6', 'y'],
+                ['id', 'name'],
+            ],
+            $rows
+        );
+        self::assertFileExists($baseDir . '/out/tables/some-table-1.csv.manifest');
+        $data = json_decode(file_get_contents($baseDir . '/out/tables/some-table-1.csv.manifest'), true);
+        self::assertEquals([], $data);
     }
 }

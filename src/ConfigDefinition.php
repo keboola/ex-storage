@@ -18,7 +18,8 @@ class ConfigDefinition extends BaseConfigDefinition
             ->children()
             ->scalarNode('#token')->isRequired()->cannotBeEmpty()->end()
             ->scalarNode('url')->isRequired()->cannotBeEmpty()->end()
-            ->arrayNode('tables')->prototype('scalar')->end()->end()
+            ->scalarNode('tableName')->defaultValue("")->end()
+            ->scalarNode('changedSince')->defaultValue("")->end()
             ->end()
         ;
         // @formatter:on

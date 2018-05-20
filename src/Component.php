@@ -22,11 +22,13 @@ class Component extends BaseComponent
             $client = new Client(['token' => $config->getToken(), 'url' => $config->getUrl()]);
             $tokenInfo = $client->verifyToken();
             if (count($tokenInfo['bucketPermissions']) > 1) {
-                throw new UserException('The token has too broad permissions.');
+                throw new UserException('The token must have read-only permissions to a single bucket only.');
             }
             $bucket = array_keys($tokenInfo['bucketPermissions'])[0];
             if ($tokenInfo['bucketPermissions'][$bucket] !== 'read') {
-                throw new UserException('The token does not have only read permissions to the bucket ' . $bucket);
+                throw new UserException(
+                    sprintf('The token must have read-only permissions to the bucket "%s".', $bucket)
+                );
             }
             if ($config->getAction() === 'run') {
                 $this->extract($client, $config, $bucket);
@@ -35,7 +37,7 @@ class Component extends BaseComponent
                     'tables' => $this->listTables($client, $bucket),
                 ]);
             } else {
-                throw new UserException("Unknown action " . $config->getAction());
+                throw new UserException(sprintf('Unknown action "%"', $config->getAction()));
             }
         } catch (ClientException $e) {
             throw new UserException($e->getMessage());
@@ -44,37 +46,43 @@ class Component extends BaseComponent
 
     private function extract(Client $client, Config $config, string $bucket) : void
     {
-        $tables = $config->getTables();
-        if (empty($tables)) {
-            $tables = $this->listTables($client, $bucket);
+        if (empty($config->getTableName())) {
+            throw new UserException("The tableName parameter must be provided.");
         }
-        foreach ($tables as $tableName) {
-            $this->getLogger()->info('Processing table ' . $tableName);
-            $exporter = new TableExporter($client);
-            $tableId = $bucket . '.' . $tableName;
-            $exporter->exportTable($tableId, $this->getDataDir() . '/out/tables/' . $tableName . '.csv', []);
-            $tableInfo = $client->getTable($tableId);
-            $metadata = new Metadata($client);
-            $columnMetadata = [];
-            foreach ($tableInfo['columns'] as $column) {
-                $colMetadata = $this->filterMetadata(
-                    $metadata->listColumnMetadata($tableId . '.' . $column)
-                );
-                if ($colMetadata) {
-                    $columnMetadata[$column] = $colMetadata;
-                }
-            }
-            $tableMetadata = $this->filterMetadata($metadata->listTableMetadata($tableId));
-            $options = new OutTableManifestOptions();
-            if ($columnMetadata) {
-                $options->setColumnMetadata($columnMetadata);
-            }
-            if ($tableMetadata) {
-                $options->setMetadata($tableMetadata);
-            }
-            $this->getManifestManager()->writeTableManifest($tableName . '.csv', $options);
-            $this->getLogger()->info('Table ' . $tableName . ' processed.');
+        $this->getLogger()->info(sprintf('Processing table "%s".', $config->getTableName()));
+        $exporter = new TableExporter($client);
+        $tableId = $bucket . '.' . $config->getTableName();
+        if (!empty($config->getChangedSince())) {
+            $options['changedSince'] = $config->getChangedSince();
+        } else {
+            $options = [];
         }
+        $exporter->exportTable(
+            $tableId,
+            $this->getDataDir() . '/out/tables/' . $config->getTableName() . '.csv',
+            $options
+        );
+        $tableInfo = $client->getTable($tableId);
+        $metadata = new Metadata($client);
+        $columnMetadata = [];
+        foreach ($tableInfo['columns'] as $column) {
+            $colMetadata = $this->filterMetadata(
+                $metadata->listColumnMetadata($tableId . '.' . $column)
+            );
+            if ($colMetadata) {
+                $columnMetadata[$column] = $colMetadata;
+            }
+        }
+        $tableMetadata = $this->filterMetadata($metadata->listTableMetadata($tableId));
+        $options = new OutTableManifestOptions();
+        if ($columnMetadata) {
+            $options->setColumnMetadata($columnMetadata);
+        }
+        if ($tableMetadata) {
+            $options->setMetadata($tableMetadata);
+        }
+        $this->getManifestManager()->writeTableManifest($config->getTableName() . '.csv', $options);
+        $this->getLogger()->info(sprintf('Table "%s" processed.', $config->getTableName()));
     }
 
     private function listTables(Client $client, string $bucket) : array

@@ -14,25 +14,27 @@ Configuration:
 {
 	"parameters": {
 		"#token": "some-token",
-		"url": "https://connection.keboola.com/"
+		"url": "https://connection.keboola.com/",
+		"tableName": "some-table"
 	}
 }
 ```
 
-Optionally, the extracted tables can be filtered:
+For incremental loading, you the `changedSince` parameter can be provided:
 
 ```
 {
 	"parameters": {
 		"#token": "some-token",
 		"url": "https://connection.keboola.com/",
-		"tables": ["first-table", "second-table"]
+		"tableName": "some-table",
+		"changedSince": "-1 day"
 	}
 }
 ```
 
-If the `tables` option is empty, then all tables from the source bucket are extracted (the bucket 
-is the only one to which the provided token has access).
+`changedSince` can be a timestamp or anything which 
+[`strtotime`](http://php.net/manual/en/function.strtotime.php) can understand.
 
 ## Development
 

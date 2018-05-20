@@ -18,8 +18,13 @@ class Config extends BaseConfig
         return $this->getValue(['parameters', 'url']);
     }
 
-    public function getTables() : array
+    public function getTableName() : string
     {
-        return $this->getValue(['parameters', 'tables']);
+        return $this->getValue(['parameters', 'tableName']);
+    }
+
+    public function getChangedSince() : string
+    {
+        return (string)$this->getValue(['parameters', 'changedSince']);
     }
 }
