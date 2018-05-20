@@ -25,6 +25,6 @@ class Config extends BaseConfig
 
     public function getChangedSince() : string
     {
-        return (string)$this->getValue(['parameters', 'changedSince']);
+        return (string) $this->getValue(['parameters', 'changedSince']);
     }
 }
