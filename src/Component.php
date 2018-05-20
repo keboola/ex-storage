@@ -37,7 +37,7 @@ class Component extends BaseComponent
                     'tables' => $this->listTables($client, $bucket),
                 ]);
             } else {
-                throw new UserException(sprintf('Unknown action "%"', $config->getAction()));
+                throw new UserException(sprintf('Unknown action "%s"', $config->getAction()));
             }
         } catch (ClientException $e) {
             throw new UserException($e->getMessage());
