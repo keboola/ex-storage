@@ -2,15 +2,34 @@
 
 declare(strict_types=1);
 
-namespace MyComponent;
+namespace Keboola\StorageExtractor;
 
 use Keboola\Component\Config\BaseConfig;
 
 class Config extends BaseConfig
 {
-    // @todo implement your custom getters
-    public function getFoo() : string
+    public function getToken() : string
     {
-        return $this->getValue(['parameters', 'foo']);
+        return $this->getValue(['parameters', '#token']);
+    }
+
+    public function getUrl() : string
+    {
+        return $this->getValue(['parameters', 'url']);
+    }
+
+    public function getTableName() : string
+    {
+        return $this->getValue(['parameters', 'tableName']);
+    }
+
+    public function getChangedSince() : string
+    {
+        return (string) $this->getValue(['parameters', 'changedSince']);
+    }
+
+    public function extractMetadata() : bool
+    {
+        return (bool) $this->getValue(['parameters', 'extractMetadata']);
     }
 }

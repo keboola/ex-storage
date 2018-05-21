@@ -9,7 +9,7 @@ before_script:
   - export APP_IMAGE=keboola-component
   - docker -v
   - docker build -t $APP_IMAGE .
-  - docker run $APP_IMAGE composer ci
+  - docker run -e KBC_TEST_TOKEN -e KBC_TEST_WRITE_TOKEN -e KBC_TEST_URL -e KBC_TEST_BUCKET $APP_IMAGE composer ci
 
   # push test image to ECR
   - docker pull quay.io/keboola/developer-portal-cli-v2:latest
@@ -22,8 +22,7 @@ before_script:
 
 script:
   # run test job inside KBC
-  # - docker run --rm -e KBC_STORAGE_TOKEN quay.io/keboola/syrup-cli:latest run-job $KBC_DEVELOPERPORTAL_APP $KBC_APP_TEST_CONFIG_ID test
-  - skip
+  - docker run --rm -e KBC_STORAGE_TOKEN quay.io/keboola/syrup-cli:latest run-job $KBC_DEVELOPERPORTAL_APP $KBC_APP_TEST_CONFIG_ID test
 
 deploy:
   provider: script
@@ -31,3 +30,8 @@ deploy:
   script: ./deploy.sh
   on:
     tags: true
+
+notifications:
+  slack:
+    secure: Gi5Wn+GZYH4cvjK2tQoJnnIdojkaJeo8b9bF7Fi7vxU99yjW7fRhaxUuz4YFC5o9JPQydLV/kSvsKDYtGILQgn16kxhglxJM8t01sLguQRMacej2PnvK+9GsC9EDudPJVfWjXkn2l3wvYbNYwnM+wgF1jBzdtYkznQTFg4yz145CVwU3c7ISKUtgxwjmBXSoKPYYHmWlecJGdgl6b8T4YUhmD3ITc1oeNpIlXizS8MYOY0FSqoX/Y51hD2Jl9w8xlaFdecbFX8m/uq9ZeJiDPdXs0ECMZUJ3TayfOunwkt4zh8s90ykMFsOcm+iif8mHkkAJKpb/uLiE2pa0h2GU251aeXOz8I1l1aZaOXyG9HgAXMpfrlsJhLAiSXBt/cOwpqwVOPHuuiW6mR3tqdXT06avaZ1DwcnQn8ruUwqS9C/6kZedvFvxvnuDUldJGAeo7h52YwBCiYFGO4Fcki3qSmJadoA8IoTmeAAMlFPPTEb3RUJHQqtKu5Fqljcc1n/o11MLmgt6+2ZGCqxydrms1LekEHEr4vmKgBV8Tt5phzxrNQwXoe0ZNxys1l+O0lU9rSRoX51kUW0sKJOQ9OqJcYKK0T5syEJw7WkT7gvS/Xvhptu+e79r4b4M8w/KLzXIQtOco6EzJKYMn2j1JBfvLe1eazuSjV6rMFBBUGvUOtg=
+  email: false
