@@ -20,7 +20,7 @@ Configuration:
 }
 ```
 
-For incremental loading, you the `changedSince` parameter can be provided:
+For incremental loading, you can provide the `changedSince` parameter:
 
 ```
 {
