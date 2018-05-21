@@ -1,6 +1,6 @@
 # Storage Extractor
 
-[![Build Status](https://travis-ci.org/keboola/ex-storage.svg?branch=master)](https://travis-ci.org/keboola/ex-storage)
+[![Build Status](https://travis-ci.com/keboola/ex-storage.svg?branch=master)](https://travis-ci.org/keboola/ex-storage)
 
 Extracts tables from source bucket from a source project. You need to provide a Storage
 token (which identifies both the project and the bucket) from the source project which 
