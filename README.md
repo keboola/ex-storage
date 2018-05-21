@@ -35,6 +35,18 @@ For incremental loading, you can provide the `changedSince` parameter:
 
 `changedSince` can be a timestamp or anything which 
 [`strtotime`](http://php.net/manual/en/function.strtotime.php) can understand.
+To also export the table and column metadata, use the `extractMetadata` parameter:
+
+```
+{
+	"parameters": {
+		"#token": "some-token",
+		"url": "https://connection.keboola.com/",
+		"tableName": "some-table",
+		"extractMetadata": true
+	}
+}
+```
 
 ## Development
 

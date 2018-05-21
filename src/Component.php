@@ -62,26 +62,28 @@ class Component extends BaseComponent
             $this->getDataDir() . '/out/tables/' . $config->getTableName() . '.csv',
             $options
         );
-        $tableInfo = $client->getTable($tableId);
-        $metadata = new Metadata($client);
-        $columnMetadata = [];
-        foreach ($tableInfo['columns'] as $column) {
-            $colMetadata = $this->filterMetadata(
-                $metadata->listColumnMetadata($tableId . '.' . $column)
-            );
-            if ($colMetadata) {
-                $columnMetadata[$column] = $colMetadata;
+        $manifestOptions = new OutTableManifestOptions();
+        if ($config->extractMetadata()) {
+            $tableInfo = $client->getTable($tableId);
+            $metadata = new Metadata($client);
+            $columnMetadata = [];
+            foreach ($tableInfo['columns'] as $column) {
+                $colMetadata = $this->filterMetadata(
+                    $metadata->listColumnMetadata($tableId . '.' . $column)
+                );
+                if ($colMetadata) {
+                    $columnMetadata[$column] = $colMetadata;
+                }
+            }
+            $tableMetadata = $this->filterMetadata($metadata->listTableMetadata($tableId));
+            if ($columnMetadata) {
+                $manifestOptions->setColumnMetadata($columnMetadata);
+            }
+            if ($tableMetadata) {
+                $manifestOptions->setMetadata($tableMetadata);
             }
         }
-        $tableMetadata = $this->filterMetadata($metadata->listTableMetadata($tableId));
-        $options = new OutTableManifestOptions();
-        if ($columnMetadata) {
-            $options->setColumnMetadata($columnMetadata);
-        }
-        if ($tableMetadata) {
-            $options->setMetadata($tableMetadata);
-        }
-        $this->getManifestManager()->writeTableManifest($config->getTableName() . '.csv', $options);
+        $this->getManifestManager()->writeTableManifest($config->getTableName() . '.csv', $manifestOptions);
         $this->getLogger()->info(sprintf('Table "%s" processed.', $config->getTableName()));
     }
 

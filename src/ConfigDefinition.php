@@ -20,6 +20,7 @@ class ConfigDefinition extends BaseConfigDefinition
             ->scalarNode('url')->isRequired()->cannotBeEmpty()->end()
             ->scalarNode('tableName')->defaultValue("")->end()
             ->scalarNode('changedSince')->defaultValue("")->end()
+            ->booleanNode('extractMetadata')->defaultFalse()->end()
             ->end()
         ;
         // @formatter:on

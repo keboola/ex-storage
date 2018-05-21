@@ -141,7 +141,7 @@ class StorageExtractorTest extends TestCase
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
         self::expectException(UserException::class);
-        self::expectExceptionMessage('The table non-existent-table not found in the bucket in.c-ex-storage');
+        self::expectExceptionMessage('The table "non-existent-table" was not found in the bucket "in.c-ex-storage"');
         $app->run();
     }
 
@@ -203,6 +203,7 @@ class StorageExtractorTest extends TestCase
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
                 'tableName' => 'some-table-4',
+                'extractMetadata' => true,
             ],
         ];
         $baseDir = $temp->getTmpFolder();

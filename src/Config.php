@@ -27,4 +27,9 @@ class Config extends BaseConfig
     {
         return (string) $this->getValue(['parameters', 'changedSince']);
     }
+
+    public function extractMetadata() : bool
+    {
+        return (bool) $this->getValue(['parameters', 'extractMetadata']);
+    }
 }
