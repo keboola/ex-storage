@@ -24,7 +24,7 @@ class TokenValidator
         $this->client = $client;
     }
 
-    public function validate(): string
+    public function validateBucket(): string
     {
         $tokenInfo = $this->client->verifyToken();
         if (count($tokenInfo['bucketPermissions']) <> 1) {

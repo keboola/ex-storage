@@ -21,7 +21,7 @@ class Component extends BaseComponent
             $config = $this->getConfig();
             $client = new Client(['token' => $config->getToken(), 'url' => $config->getUrl()]);
             $tokenValidator = new TokenValidator($client);
-            $bucket = $tokenValidator->validate();
+            $bucket = $tokenValidator->validateBucket();
             if ($config->getAction() === 'run') {
                 $this->extract($client, $config, $bucket);
             } elseif ($config->getAction() === 'list') {

@@ -27,7 +27,7 @@ class TokenValidatorTest extends TestCase
     {
         $client = $this->getClientMock(['bucketPermissions' => ['in.some-bucket' => 'read']]);
         $validator = new TokenValidator($client);
-        self::assertSame('in.some-bucket', $validator->validate());
+        self::assertSame('in.some-bucket', $validator->validateBucket());
     }
 
     public function testTokenWrongPermissions(): void
@@ -36,7 +36,7 @@ class TokenValidatorTest extends TestCase
         $validator = new TokenValidator($client);
         self::expectExceptionMessage('The token must have read-only permissions to the bucket "in.some-bucket".');
         self::expectException(UserException::class);
-        $validator->validate();
+        $validator->validateBucket();
     }
 
     public function testTokenTooBroadPermissions(): void
@@ -47,7 +47,7 @@ class TokenValidatorTest extends TestCase
         $validator = new TokenValidator($client);
         self::expectExceptionMessage('The token must have read-only permissions to a single bucket only.');
         self::expectException(UserException::class);
-        $validator->validate();
+        $validator->validateBucket();
     }
 
     public function testTokenTooNarrowPermissions(): void
@@ -56,6 +56,6 @@ class TokenValidatorTest extends TestCase
         $validator = new TokenValidator($client);
         self::expectExceptionMessage('The token must have read-only permissions to a single bucket only.');
         self::expectException(UserException::class);
-        $validator->validate();
+        $validator->validateBucket();
     }
 }
