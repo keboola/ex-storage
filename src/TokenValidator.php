@@ -27,7 +27,7 @@ class TokenValidator
     public function validate(): string
     {
         $tokenInfo = $this->client->verifyToken();
-        if (count($tokenInfo['bucketPermissions']) > 1) {
+        if (count($tokenInfo['bucketPermissions']) <> 1) {
             throw new UserException('The token must have read-only permissions to a single bucket only.');
         }
         $bucket = array_keys($tokenInfo['bucketPermissions'])[0];
