@@ -20,8 +20,8 @@ class Component extends BaseComponent
             /** @var Config $config */
             $config = $this->getConfig();
             $client = new Client(['token' => $config->getToken(), 'url' => $config->getUrl()]);
-            $tokenValidator = new TokenValidator($client);
-            $bucket = $tokenValidator->validateBucket();
+            $authorization = new Authorization($client);
+            $bucket = $authorization->getAuthorizedBucket();
             if ($config->getAction() === 'run') {
                 $this->extract($client, $config, $bucket);
             } elseif ($config->getAction() === 'list') {

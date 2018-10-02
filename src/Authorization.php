@@ -12,30 +12,40 @@ use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\TableExporter;
 
-class TokenValidator
+class Authorization
 {
     /**
-     * @var Client
+     * @var string
      */
-    private $client;
+    private $authorizedBucket;
 
     public function __construct(Client $client)
     {
-        $this->client = $client;
+        $tokenInfo = $client->verifyToken();
+        $this->validateNumberOfBuckets($tokenInfo);
+        $bucket = array_keys($tokenInfo['bucketPermissions'])[0];
+        $this->validateBucketPermissions($tokenInfo, $bucket);
+        $this->authorizedBucket = $bucket;
     }
 
-    public function validateBucket(): string
+    private function validateNumberOfBuckets(array $tokenInfo)
     {
-        $tokenInfo = $this->client->verifyToken();
         if (count($tokenInfo['bucketPermissions']) <> 1) {
             throw new UserException('The token must have read-only permissions to a single bucket only.');
         }
-        $bucket = array_keys($tokenInfo['bucketPermissions'])[0];
+    }
+
+    private function validateBucketPermissions(array $tokenInfo, string $bucket)
+    {
         if ($tokenInfo['bucketPermissions'][$bucket] !== 'read') {
             throw new UserException(
                 sprintf('The token must have read-only permissions to the bucket "%s".', $bucket)
             );
         }
-        return $bucket;
+    }
+
+    public function getAuthorizedBucket(): string
+    {
+        return $this->authorizedBucket;
     }
 }
