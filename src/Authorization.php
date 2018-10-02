@@ -28,14 +28,14 @@ class Authorization
         $this->authorizedBucket = $bucket;
     }
 
-    private function validateNumberOfBuckets(array $tokenInfo)
+    private function validateNumberOfBuckets(array $tokenInfo): void
     {
         if (count($tokenInfo['bucketPermissions']) <> 1) {
             throw new UserException('The token must have read-only permissions to a single bucket only.');
         }
     }
 
-    private function validateBucketPermissions(array $tokenInfo, string $bucket)
+    private function validateBucketPermissions(array $tokenInfo, string $bucket): void
     {
         if ($tokenInfo['bucketPermissions'][$bucket] !== 'read') {
             throw new UserException(
