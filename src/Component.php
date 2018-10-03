@@ -20,16 +20,8 @@ class Component extends BaseComponent
             /** @var Config $config */
             $config = $this->getConfig();
             $client = new Client(['token' => $config->getToken(), 'url' => $config->getUrl()]);
-            $tokenInfo = $client->verifyToken();
-            if (count($tokenInfo['bucketPermissions']) > 1) {
-                throw new UserException('The token must have read-only permissions to a single bucket only.');
-            }
-            $bucket = array_keys($tokenInfo['bucketPermissions'])[0];
-            if ($tokenInfo['bucketPermissions'][$bucket] !== 'read') {
-                throw new UserException(
-                    sprintf('The token must have read-only permissions to the bucket "%s".', $bucket)
-                );
-            }
+            $authorization = new Authorization($client);
+            $bucket = $authorization->getAuthorizedBucket();
             if ($config->getAction() === 'run') {
                 $this->extract($client, $config, $bucket);
             } elseif ($config->getAction() === 'list') {
