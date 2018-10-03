@@ -133,7 +133,7 @@ class Component extends BaseComponent
         return ConfigDefinition::class;
     }
 
-    private function getProjectInfo(Client $client)
+    private function getProjectInfo(Client $client): array
     {
         $tokenInfo = $client->verifyToken();
         return [

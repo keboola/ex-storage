@@ -257,7 +257,7 @@ class StorageExtractorTest extends TestCase
         );
     }
 
-    public function testActionList(): void
+    public function testActionSourceInfo(): void
     {
         $temp = new Temp('ex-storage');
         $temp->initRunFolder();
@@ -275,7 +275,7 @@ class StorageExtractorTest extends TestCase
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
             ],
-            'action' => 'list',
+            'action' => 'sourceInfo',
         ];
         $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);
@@ -286,7 +286,7 @@ class StorageExtractorTest extends TestCase
         });
         $app->run();
         ob_end_clean();
-        $data = json_decode($result, true);
+        $data = \GuzzleHttp\json_decode($result, true);
         self::assertArrayHasKey('tables', $data);
         ksort($data['tables']);
         self::assertEquals(
@@ -306,32 +306,6 @@ class StorageExtractorTest extends TestCase
             ],
             $data['tables']
         );
-    }
-
-    public function testActionProjectInfo(): void
-    {
-        $temp = new Temp('ex-storage');
-        $temp->initRunFolder();
-        $baseDir = $temp->getTmpFolder();
-        $fs = new Filesystem();
-
-        $configFile = [
-            'parameters' => [
-                '#token' => getenv('KBC_TEST_TOKEN'),
-                'url' => getenv('KBC_TEST_URL'),
-            ],
-            'action' => 'projectInfo',
-        ];
-        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
-        putenv('KBC_DATADIR=' . $baseDir);
-        $app = new Component(new NullLogger());
-        $result = '';
-        ob_start(function ($content) use (&$result) : void {
-            $result .= $content;
-        });
-        $app->run();
-        ob_end_clean();
-        $data = json_decode($result, true);
         $client = new Client(['token' => getenv('KBC_TEST_TOKEN'), 'url' => getenv('KBC_TEST_URL')]);
         $tokenInfo = $client->verifyToken();
         self::assertArrayHasKey('project', $data);
