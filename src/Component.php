@@ -99,8 +99,11 @@ class Component extends BaseComponent
     private function listTables(Client $client, string $bucket): array
     {
         $tables = $client->listTables($bucket);
-        array_walk($tables, function (&$value): void {
-            $value = $value['name'];
+        array_walk($tables, function (&$value) : void {
+            $value = [
+                'name' => $value['name'],
+                'primaryKey' => $value['primaryKey'],
+            ];
         });
         return $tables;
     }
@@ -128,5 +131,14 @@ class Component extends BaseComponent
     protected function getConfigDefinitionClass(): string
     {
         return ConfigDefinition::class;
+    }
+
+    private function getProjectInfo(Client $client)
+    {
+        $tokenInfo = $client->verifyToken();
+        return [
+            'name' => $tokenInfo['owner']['name'],
+            'id' => $tokenInfo['owner']['id'],
+        ];
     }
 }

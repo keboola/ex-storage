@@ -257,7 +257,7 @@ class StorageExtractorTest extends TestCase
         );
     }
 
-    public function testAction(): void
+    public function testActionList(): void
     {
         $temp = new Temp('ex-storage');
         $temp->initRunFolder();
@@ -288,8 +288,55 @@ class StorageExtractorTest extends TestCase
         ob_end_clean();
         $data = json_decode($result, true);
         self::assertArrayHasKey('tables', $data);
-        sort($data['tables']);
-        self::assertEquals(['some-table-5', 'some-table-6'], $data['tables']);
+        ksort($data['tables']);
+        self::assertEquals(
+            [
+                [
+                    'name' => 'some-table-5',
+                    'primaryKey' => [
+                        'id',
+                    ],
+                ],
+                [
+                    'name' => 'some-table-6',
+                    'primaryKey' => [
+                        'id',
+                    ],
+                ],
+            ],
+            $data['tables']
+        );
+    }
+
+    public function testActionProjectInfo(): void
+    {
+        $temp = new Temp('ex-storage');
+        $temp->initRunFolder();
+        $baseDir = $temp->getTmpFolder();
+        $fs = new Filesystem();
+
+        $configFile = [
+            'parameters' => [
+                '#token' => getenv('KBC_TEST_TOKEN'),
+                'url' => getenv('KBC_TEST_URL'),
+            ],
+            'action' => 'projectInfo',
+        ];
+        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        putenv('KBC_DATADIR=' . $baseDir);
+        $app = new Component(new NullLogger());
+        $result = '';
+        ob_start(function ($content) use (&$result) : void {
+            $result .= $content;
+        });
+        $app->run();
+        ob_end_clean();
+        $data = json_decode($result, true);
+        $client = new Client(['token' => getenv('KBC_TEST_TOKEN'), 'url' => getenv('KBC_TEST_URL')]);
+        $tokenInfo = $client->verifyToken();
+        self::assertArrayHasKey('project', $data);
+        self::assertEquals($tokenInfo['owner']['id'], $data['project']['id']);
+        self::assertEquals($tokenInfo['owner']['name'], $data['project']['name']);
     }
 
     public function testActionInvalidToken(): void
