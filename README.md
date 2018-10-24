@@ -89,6 +89,8 @@ To load primary keys from the exported table, use the `fullSync` parameter:
 }
 ```
 
+When `fullSync` is provided, the parameters `primaryKey` and `incremental` are ignored.
+
 ## Development
 
 Clone this repository and init the workspace with following command:
