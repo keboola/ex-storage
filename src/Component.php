@@ -72,6 +72,14 @@ class Component extends BaseComponent
             $options
         );
         $manifestOptions = new OutTableManifestOptions();
+        if ($config->isFullSync()) {
+            $tableInfo = $client->getTable($tableId);
+            $manifestOptions->setPrimaryKeyColumns($tableInfo['primaryKey']);
+            $manifestOptions->setIncremental(false);
+        } else {
+            $manifestOptions->setPrimaryKeyColumns($config->getPrimaryKey());
+            $manifestOptions->setIncremental($config->getIncremental());
+        }
         if ($config->extractMetadata()) {
             $tableInfo = $client->getTable($tableId);
             $metadata = new Metadata($client);

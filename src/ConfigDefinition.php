@@ -21,6 +21,9 @@ class ConfigDefinition extends BaseConfigDefinition
             ->scalarNode('tableName')->defaultValue('')->end()
             ->scalarNode('changedSince')->defaultValue('')->end()
             ->booleanNode('extractMetadata')->defaultFalse()->end()
+            ->booleanNode('fullSync')->defaultFalse()->end()
+            ->arrayNode('primaryKey')->prototype('scalar')->end()->end()
+            ->booleanNode('incremental')->defaultFalse()->end()
             ->end()
         ;
         // @formatter:on

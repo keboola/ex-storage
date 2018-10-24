@@ -18,9 +18,19 @@ class Config extends BaseConfig
         return $this->getValue(['parameters', 'url']);
     }
 
+    public function getIncremental(): bool
+    {
+        return (bool) $this->getValue(['parameters', 'incremental']);
+    }
+
+    public function getPrimaryKey(): array
+    {
+        return (array) $this->getValue(['parameters', 'primaryKey']);
+    }
+
     public function getTableName(): string
     {
-        return $this->getValue(['parameters', 'tableName']);
+        return (string) $this->getValue(['parameters', 'tableName']);
     }
 
     public function getChangedSince(): string
@@ -31,5 +41,10 @@ class Config extends BaseConfig
     public function extractMetadata(): bool
     {
         return (bool) $this->getValue(['parameters', 'extractMetadata']);
+    }
+
+    public function isFullSync(): bool
+    {
+        return (bool) $this->getValue(['parameters', 'fullSync']);
     }
 }
