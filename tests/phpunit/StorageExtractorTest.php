@@ -380,7 +380,7 @@ class StorageExtractorTest extends TestCase
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
         $result = '';
-        ob_start(function ($content) use (&$result) : void {
+        ob_start(function ($content) use (&$result): void {
             $result .= $content;
         });
         $app->run();
