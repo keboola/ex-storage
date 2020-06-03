@@ -30,7 +30,7 @@ class Authorization
 
     private function validateNumberOfBuckets(array $tokenInfo): void
     {
-        if (count($tokenInfo['bucketPermissions']) <> 1) {
+        if (count($tokenInfo['bucketPermissions']) !== 1) {
             throw new UserException('The token must have read-only permissions to a single bucket only.');
         }
     }

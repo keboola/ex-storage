@@ -119,7 +119,9 @@ class StorageExtractorTest extends TestCase
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
         self::expectException(UserException::class);
-        self::expectExceptionMessage('The token must have read-only permissions to the bucket "' . getenv('KBC_TEST_BUCKET') . '".');
+        self::expectExceptionMessage(
+            'The token must have read-only permissions to the bucket "' . getenv('KBC_TEST_BUCKET') . '".'
+        );
         $app->run();
     }
 
@@ -141,7 +143,9 @@ class StorageExtractorTest extends TestCase
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
         self::expectException(UserException::class);
-        self::expectExceptionMessage('The table "non-existent-table" was not found in the bucket "' . getenv('KBC_TEST_BUCKET') . '"');
+        self::expectExceptionMessage(
+            'The table "non-existent-table" was not found in the bucket "' . getenv('KBC_TEST_BUCKET') . '"'
+        );
         $app->run();
     }
 
@@ -271,7 +275,7 @@ class StorageExtractorTest extends TestCase
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
         $result = '';
-        ob_start(function ($content) use (&$result) : void {
+        ob_start(function ($content) use (&$result): void {
             $result .= $content;
         });
         $app->run();

@@ -36,10 +36,10 @@ class Component extends BaseComponent
         }
     }
 
-    private function extract(Client $client, Config $config, string $bucket) : void
+    private function extract(Client $client, Config $config, string $bucket): void
     {
         if (empty($config->getTableName())) {
-            throw new UserException("The tableName parameter must be provided.");
+            throw new UserException('The tableName parameter must be provided.');
         }
         $this->getLogger()->info(sprintf('Processing table "%s".', $config->getTableName()));
         $exporter = new TableExporter($client);
@@ -79,16 +79,16 @@ class Component extends BaseComponent
         $this->getLogger()->info(sprintf('Table "%s" processed.', $config->getTableName()));
     }
 
-    private function listTables(Client $client, string $bucket) : array
+    private function listTables(Client $client, string $bucket): array
     {
         $tables = $client->listTables($bucket);
-        array_walk($tables, function (&$value) : void {
+        array_walk($tables, function (&$value): void {
             $value = $value['name'];
         });
         return $tables;
     }
 
-    private function filterMetadata(array $metadata) : array
+    private function filterMetadata(array $metadata): array
     {
         $result = [];
         foreach ($metadata as $item) {
