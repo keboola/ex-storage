@@ -4,7 +4,7 @@
     "description": "Storage API Extractor",
     "type": "project",
     "require": {
-        "PHP": "^7.2",
+        "php": "^7.2",
         "keboola/php-component": "^4.0",
         "keboola/storage-api-client": "^10.1"
     },
