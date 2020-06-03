@@ -75,7 +75,10 @@ class StorageExtractorTest extends TestCase
             $rows
         );
         self::assertFileExists($baseDir . '/out/tables/some-table-1.csv.manifest');
-        $data = json_decode(file_get_contents($baseDir . '/out/tables/some-table-1.csv.manifest'), true);
+        $data = json_decode(
+            (string) file_get_contents($baseDir . '/out/tables/some-table-1.csv.manifest'),
+            true
+        );
         self::assertEquals([], $data);
     }
 
@@ -229,7 +232,10 @@ class StorageExtractorTest extends TestCase
             $rows
         );
         self::assertFileExists($baseDir . '/out/tables/some-table-4.csv.manifest');
-        $data = json_decode(file_get_contents($baseDir . '/out/tables/some-table-4.csv.manifest'), true);
+        $data = json_decode(
+            (string) file_get_contents($baseDir . '/out/tables/some-table-4.csv.manifest'),
+            true
+        );
         self::assertEquals(
             [
                 'metadata' => [
@@ -348,7 +354,10 @@ class StorageExtractorTest extends TestCase
             $rows
         );
         self::assertFileExists($baseDir . '/out/tables/some-table-1.csv.manifest');
-        $data = json_decode(file_get_contents($baseDir . '/out/tables/some-table-1.csv.manifest'), true);
+        $data = json_decode(
+            (string) file_get_contents($baseDir . '/out/tables/some-table-1.csv.manifest'),
+            true
+        );
         self::assertEquals([], $data);
     }
 }

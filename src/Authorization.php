@@ -23,7 +23,7 @@ class Authorization
     {
         $tokenInfo = $client->verifyToken();
         $this->validateNumberOfBuckets($tokenInfo);
-        $bucket = array_keys($tokenInfo['bucketPermissions'])[0];
+        $bucket = (string) array_keys($tokenInfo['bucketPermissions'])[0];
         $this->validateBucketPermissions($tokenInfo, $bucket);
         $this->authorizedBucket = $bucket;
     }
