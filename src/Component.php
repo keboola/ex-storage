@@ -14,6 +14,13 @@ use Keboola\StorageApi\TableExporter;
 
 class Component extends BaseComponent
 {
+    private const ACTION_RUN = 'run';
+
+    private const ACTION_LIST = 'list';
+
+    private const ACTION_INFO = 'info';
+
+
     public function run(): void
     {
         try {
@@ -22,14 +29,24 @@ class Component extends BaseComponent
             $client = new Client(['token' => $config->getToken(), 'url' => $config->getUrl()]);
             $authorization = new Authorization($client);
             $bucket = $authorization->getAuthorizedBucket();
-            if ($config->getAction() === 'run') {
-                $this->extract($client, $config, $bucket);
-            } elseif ($config->getAction() === 'list') {
-                echo \GuzzleHttp\json_encode([
-                    'tables' => $this->listTables($client, $bucket),
-                ]);
-            } else {
-                throw new UserException(sprintf('Unknown action "%s"', $config->getAction()));
+            switch ($config->getAction()) {
+                case self::ACTION_RUN:
+                    $this->extract($client, $config, $bucket);
+                    break;
+                case self::ACTION_LIST:
+                    echo \GuzzleHttp\json_encode([
+                        'tables' => $this->listTables($client, $bucket),
+                    ]);
+                    break;
+                case self::ACTION_INFO:
+                    echo \GuzzleHttp\json_encode([
+                        'projectId' => $authorization->getAuthorizedProjectId(),
+                        'projectName' => $authorization->getAuthorizedProjectName(),
+                        'bucket' => $bucket,
+                    ]);
+                    break;
+                default:
+                    throw new UserException(sprintf('Unknown action "%s"', $config->getAction()));
             }
         } catch (ClientException $e) {
             throw new UserException($e->getMessage());
