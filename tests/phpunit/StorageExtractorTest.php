@@ -75,7 +75,10 @@ class StorageExtractorTest extends TestCase
             $rows
         );
         self::assertFileExists($baseDir . '/out/tables/some-table-1.csv.manifest');
-        $data = json_decode(file_get_contents($baseDir . '/out/tables/some-table-1.csv.manifest'), true);
+        $data = json_decode(
+            (string) file_get_contents($baseDir . '/out/tables/some-table-1.csv.manifest'),
+            true
+        );
         self::assertEquals([], $data);
     }
 
@@ -119,7 +122,9 @@ class StorageExtractorTest extends TestCase
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
         self::expectException(UserException::class);
-        self::expectExceptionMessage('The token must have read-only permissions to the bucket "' . getenv('KBC_TEST_BUCKET') . '".');
+        self::expectExceptionMessage(
+            'The token must have read-only permissions to the bucket "' . getenv('KBC_TEST_BUCKET') . '".'
+        );
         $app->run();
     }
 
@@ -141,7 +146,9 @@ class StorageExtractorTest extends TestCase
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
         self::expectException(UserException::class);
-        self::expectExceptionMessage('The table "non-existent-table" was not found in the bucket "' . getenv('KBC_TEST_BUCKET') . '"');
+        self::expectExceptionMessage(
+            'The table "non-existent-table" was not found in the bucket "' . getenv('KBC_TEST_BUCKET') . '"'
+        );
         $app->run();
     }
 
@@ -225,7 +232,10 @@ class StorageExtractorTest extends TestCase
             $rows
         );
         self::assertFileExists($baseDir . '/out/tables/some-table-4.csv.manifest');
-        $data = json_decode(file_get_contents($baseDir . '/out/tables/some-table-4.csv.manifest'), true);
+        $data = json_decode(
+            (string) file_get_contents($baseDir . '/out/tables/some-table-4.csv.manifest'),
+            true
+        );
         self::assertEquals(
             [
                 'metadata' => [
@@ -271,7 +281,7 @@ class StorageExtractorTest extends TestCase
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
         $result = '';
-        ob_start(function ($content) use (&$result) : void {
+        ob_start(function ($content) use (&$result): void {
             $result .= $content;
         });
         $app->run();
@@ -344,7 +354,10 @@ class StorageExtractorTest extends TestCase
             $rows
         );
         self::assertFileExists($baseDir . '/out/tables/some-table-1.csv.manifest');
-        $data = json_decode(file_get_contents($baseDir . '/out/tables/some-table-1.csv.manifest'), true);
+        $data = json_decode(
+            (string) file_get_contents($baseDir . '/out/tables/some-table-1.csv.manifest'),
+            true
+        );
         self::assertEquals([], $data);
     }
 }

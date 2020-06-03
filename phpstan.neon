@@ -1,5 +1,6 @@
 parameters:
+    checkMissingIterableValueType: false
     ignoreErrors:
-        - '#Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface::scalarNode\(\)#'
-        - '#Calling method end\(\) on possibly null value of type Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface|null.#'
-        - '#Keboola\\StorageExtractor\\Tests\\AuthorizationTest::getClientMock\(\) should return Keboola\\StorageApi\\Client but returns PHPUnit\\Framework\\MockObject\\MockObject.#'
+        - '#Cannot call method scalarNode\(\) on Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface\|null\.#'
+        - '#function get_class expects object, Throwable\|null given\.#'
+        - '#Parameter .1 \$array_arg of function sort expects array, array<bool\|float\|int\|string, mixed> given\.#'

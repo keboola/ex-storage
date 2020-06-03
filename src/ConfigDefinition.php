@@ -18,8 +18,8 @@ class ConfigDefinition extends BaseConfigDefinition
             ->children()
             ->scalarNode('#token')->isRequired()->cannotBeEmpty()->end()
             ->scalarNode('url')->isRequired()->cannotBeEmpty()->end()
-            ->scalarNode('tableName')->defaultValue("")->end()
-            ->scalarNode('changedSince')->defaultValue("")->end()
+            ->scalarNode('tableName')->defaultValue('')->end()
+            ->scalarNode('changedSince')->defaultValue('')->end()
             ->booleanNode('extractMetadata')->defaultFalse()->end()
             ->end()
         ;
