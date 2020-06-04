@@ -387,11 +387,14 @@ class StorageExtractorTest extends TestCase
         ob_end_clean();
 
         $decodeResult = json_decode($result, true);
+        $tokenInfo = $this->client->verifyToken();
 
         self::assertArrayHasKey('projectId', $decodeResult);
         self::assertArrayHasKey('projectName', $decodeResult);
         self::assertArrayHasKey('bucket', $decodeResult);
 
         self::assertEquals(getenv('KBC_TEST_BUCKET'), $decodeResult['bucket']);
+        self::assertEquals($tokenInfo['owner']['id'], $decodeResult['projectId']);
+        self::assertEquals($tokenInfo['owner']['name'], $decodeResult['projectName']);
     }
 }
