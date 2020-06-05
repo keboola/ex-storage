@@ -360,4 +360,41 @@ class StorageExtractorTest extends TestCase
         );
         self::assertEquals([], $data);
     }
+
+    public function testInfoAction(): void
+    {
+        $temp = new Temp('ex-storage');
+        $temp->initRunFolder();
+        $baseDir = $temp->getTmpFolder();
+        $fs = new Filesystem();
+
+        $configFile = [
+            'action' => 'info',
+            'parameters' => [
+                '#token' => getenv('KBC_TEST_TOKEN'),
+                'url' => getenv('KBC_TEST_URL'),
+            ],
+        ];
+
+        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        putenv('KBC_DATADIR=' . $baseDir);
+        $app = new Component(new NullLogger());
+        $result = '';
+        ob_start(function ($content) use (&$result): void {
+            $result .= $content;
+        });
+        $app->run();
+        ob_end_clean();
+
+        $decodeResult = json_decode($result, true);
+        $tokenInfo = $this->client->verifyToken();
+
+        self::assertArrayHasKey('projectId', $decodeResult);
+        self::assertArrayHasKey('projectName', $decodeResult);
+        self::assertArrayHasKey('bucket', $decodeResult);
+
+        self::assertEquals(getenv('KBC_TEST_BUCKET'), $decodeResult['bucket']);
+        self::assertEquals($tokenInfo['owner']['id'], $decodeResult['projectId']);
+        self::assertEquals($tokenInfo['owner']['name'], $decodeResult['projectName']);
+    }
 }
