@@ -75,11 +75,11 @@ class StorageExtractorTest extends TestCase
             $rows
         );
         self::assertFileExists($baseDir . '/out/tables/some-table-1.csv.manifest');
-        $data = json_decode(
+        $data = \GuzzleHttp\json_decode(
             (string) file_get_contents($baseDir . '/out/tables/some-table-1.csv.manifest'),
             true
         );
-        self::assertEquals([], $data);
+        self::assertEquals(['primary_key' => [], 'incremental' => false], $data);
     }
 
     public function testInvalidToken(): void
@@ -232,7 +232,7 @@ class StorageExtractorTest extends TestCase
             $rows
         );
         self::assertFileExists($baseDir . '/out/tables/some-table-4.csv.manifest');
-        $data = json_decode(
+        $data = \GuzzleHttp\json_decode(
             (string) file_get_contents($baseDir . '/out/tables/some-table-4.csv.manifest'),
             true
         );
@@ -252,12 +252,14 @@ class StorageExtractorTest extends TestCase
                         ],
                     ],
                 ],
+                'primary_key' => [],
+                'incremental' => false,
             ],
             $data
         );
     }
 
-    public function testAction(): void
+    public function testActionSourceInfo(): void
     {
         $temp = new Temp('ex-storage');
         $temp->initRunFolder();
@@ -275,7 +277,7 @@ class StorageExtractorTest extends TestCase
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
             ],
-            'action' => 'list',
+            'action' => 'sourceInfo',
         ];
         $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);
@@ -286,10 +288,31 @@ class StorageExtractorTest extends TestCase
         });
         $app->run();
         ob_end_clean();
-        $data = json_decode($result, true);
+        $data = \GuzzleHttp\json_decode($result, true);
         self::assertArrayHasKey('tables', $data);
-        sort($data['tables']);
-        self::assertEquals(['some-table-5', 'some-table-6'], $data['tables']);
+        ksort($data['tables']);
+        self::assertEquals(
+            [
+                [
+                    'name' => 'some-table-5',
+                    'primaryKey' => [
+                        'id',
+                    ],
+                ],
+                [
+                    'name' => 'some-table-6',
+                    'primaryKey' => [
+                        'id',
+                    ],
+                ],
+            ],
+            $data['tables']
+        );
+        $client = new Client(['token' => getenv('KBC_TEST_TOKEN'), 'url' => getenv('KBC_TEST_URL')]);
+        $tokenInfo = $client->verifyToken();
+        self::assertArrayHasKey('project', $data);
+        self::assertEquals($tokenInfo['owner']['id'], $data['project']['projectId']);
+        self::assertEquals($tokenInfo['owner']['name'], $data['project']['projectName']);
     }
 
     public function testActionInvalidToken(): void
@@ -334,6 +357,7 @@ class StorageExtractorTest extends TestCase
                 'url' => getenv('KBC_TEST_URL'),
                 'tableName' => 'some-table-1',
                 'changedSince' => $timestamp,
+                'incremental' => true,
             ],
         ];
         $baseDir = $temp->getTmpFolder();
@@ -354,11 +378,101 @@ class StorageExtractorTest extends TestCase
             $rows
         );
         self::assertFileExists($baseDir . '/out/tables/some-table-1.csv.manifest');
-        $data = json_decode(
+        $data = \GuzzleHttp\json_decode(
             (string) file_get_contents($baseDir . '/out/tables/some-table-1.csv.manifest'),
             true
         );
-        self::assertEquals([], $data);
+        self::assertEquals(['primary_key' => [], 'incremental' => true], $data);
+    }
+
+    public function testPrimaryKeyFullSync(): void
+    {
+        $temp = new Temp('ex-storage');
+        $temp->initRunFolder();
+        $fs = new Filesystem();
+        $fs->dumpFile($temp->getTmpFolder() . '/tmp.csv', "\"id\",\"name\"\n\"1\",\"a\"\n\"2\",\"b\"\n\"3\",\"c\"\n");
+        $csv = new CsvFile($temp->getTmpFolder() . '/tmp.csv');
+        $this->client->createTable(getenv('KBC_TEST_BUCKET'), 'some-table-1', $csv, ['primaryKey' => 'id']);
+
+        $configFile = [
+            'action' => 'run',
+            'parameters' => [
+                '#token' => getenv('KBC_TEST_TOKEN'),
+                'url' => getenv('KBC_TEST_URL'),
+                'tableName' => 'some-table-1',
+                'fullSync' => true,
+                'primaryKey' => ['ignored', 'garbage'], // ignored
+                'incremental' => true, //ignored
+            ],
+        ];
+        $baseDir = $temp->getTmpFolder();
+        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        putenv('KBC_DATADIR=' . $baseDir);
+        $app = new Component(new NullLogger());
+        $app->run();
+        self::assertFileExists($baseDir . '/out/tables/some-table-1.csv');
+        $csv = new CsvFile($baseDir . '/out/tables/some-table-1.csv');
+        $rows = iterator_to_array($csv);
+        sort($rows);
+        self::assertEquals(
+            [
+                ['1', 'a'],
+                ['2', 'b'],
+                ['3', 'c'],
+                ['id', 'name'],
+            ],
+            $rows
+        );
+        self::assertFileExists($baseDir . '/out/tables/some-table-1.csv.manifest');
+        $data = \GuzzleHttp\json_decode(
+            (string) file_get_contents($baseDir . '/out/tables/some-table-1.csv.manifest'),
+            true
+        );
+        self::assertEquals(['primary_key' => ['id'], 'incremental' => false], $data);
+    }
+
+    public function testPrimaryKeyExplicit(): void
+    {
+        $temp = new Temp('ex-storage');
+        $temp->initRunFolder();
+        $fs = new Filesystem();
+        $fs->dumpFile($temp->getTmpFolder() . '/tmp.csv', "\"id\",\"name\"\n\"1\",\"a\"\n\"2\",\"b\"\n\"3\",\"c\"\n");
+        $csv = new CsvFile($temp->getTmpFolder() . '/tmp.csv');
+        $this->client->createTable(getenv('KBC_TEST_BUCKET'), 'some-table-1', $csv, ['primaryKey' => 'id']);
+
+        $configFile = [
+            'action' => 'run',
+            'parameters' => [
+                '#token' => getenv('KBC_TEST_TOKEN'),
+                'url' => getenv('KBC_TEST_URL'),
+                'tableName' => 'some-table-1',
+                'primaryKey' => ['name', 'id'],
+            ],
+        ];
+        $baseDir = $temp->getTmpFolder();
+        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        putenv('KBC_DATADIR=' . $baseDir);
+        $app = new Component(new NullLogger());
+        $app->run();
+        self::assertFileExists($baseDir . '/out/tables/some-table-1.csv');
+        $csv = new CsvFile($baseDir . '/out/tables/some-table-1.csv');
+        $rows = iterator_to_array($csv);
+        sort($rows);
+        self::assertEquals(
+            [
+                ['1', 'a'],
+                ['2', 'b'],
+                ['3', 'c'],
+                ['id', 'name'],
+            ],
+            $rows
+        );
+        self::assertFileExists($baseDir . '/out/tables/some-table-1.csv.manifest');
+        $data = \GuzzleHttp\json_decode(
+            (string) file_get_contents($baseDir . '/out/tables/some-table-1.csv.manifest'),
+            true
+        );
+        self::assertEquals(['primary_key' => ['name', 'id'], 'incremental' => false], $data);
     }
 
     public function testInfoAction(): void

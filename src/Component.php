@@ -20,6 +20,7 @@ class Component extends BaseComponent
 
     private const ACTION_INFO = 'info';
 
+    private const ACTION_SOURCE_INFO = 'sourceInfo';
 
     public function run(): void
     {
@@ -39,10 +40,12 @@ class Component extends BaseComponent
                     ]);
                     break;
                 case self::ACTION_INFO:
+                    echo \GuzzleHttp\json_encode($this->getProjectInfo($authorization));
+                    break;
+                case self::ACTION_SOURCE_INFO:
                     echo \GuzzleHttp\json_encode([
-                        'projectId' => $authorization->getAuthorizedProjectId(),
-                        'projectName' => $authorization->getAuthorizedProjectName(),
-                        'bucket' => $bucket,
+                        'tables' => $this->listTables($client, $bucket),
+                        'project' => $this->getProjectInfo($authorization),
                     ]);
                     break;
                 default:
@@ -72,6 +75,14 @@ class Component extends BaseComponent
             $options
         );
         $manifestOptions = new OutTableManifestOptions();
+        if ($config->isFullSync()) {
+            $tableInfo = $client->getTable($tableId);
+            $manifestOptions->setPrimaryKeyColumns($tableInfo['primaryKey']);
+            $manifestOptions->setIncremental(false);
+        } else {
+            $manifestOptions->setPrimaryKeyColumns($config->getPrimaryKey());
+            $manifestOptions->setIncremental($config->getIncremental());
+        }
         if ($config->extractMetadata()) {
             $tableInfo = $client->getTable($tableId);
             $metadata = new Metadata($client);
@@ -100,7 +111,10 @@ class Component extends BaseComponent
     {
         $tables = $client->listTables($bucket);
         array_walk($tables, function (&$value): void {
-            $value = $value['name'];
+            $value = [
+                'name' => $value['name'],
+                'primaryKey' => $value['primaryKey'],
+            ];
         });
         return $tables;
     }
@@ -128,5 +142,14 @@ class Component extends BaseComponent
     protected function getConfigDefinitionClass(): string
     {
         return ConfigDefinition::class;
+    }
+
+    private function getProjectInfo(Authorization $authorization): array
+    {
+        return [
+            'projectId' => $authorization->getAuthorizedProjectId(),
+            'projectName' => $authorization->getAuthorizedProjectName(),
+            'bucket' => $authorization->getAuthorizedBucket(),
+        ];
     }
 }

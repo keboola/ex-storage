@@ -20,7 +20,7 @@ Configuration:
 }
 ```
 
-For incremental loading, you can provide the `changedSince` parameter:
+For incremental exporting, you can provide the `changedSince` parameter:
 
 ```
 {
@@ -47,6 +47,49 @@ To also export the table and column metadata, use the `extractMetadata` paramete
 	}
 }
 ```
+
+For incremental importing, you can provide the `incremental` parameter:
+
+```
+{
+	"parameters": {
+		"#token": "some-token",
+		"url": "https://connection.keboola.com/",
+		"tableName": "some-table",
+		"incremental": true
+	}
+}
+```
+
+To define primary keys on the exported table, use the `primaryKey` parameter:
+
+```
+{
+	"parameters": {
+		"#token": "some-token",
+		"url": "https://connection.keboola.com/",
+		"tableName": "some-table",
+		"primaryKey": ['column1', 'column2']
+	}
+}
+```
+
+If the table is imported into an existing table with different primary keys, an error is raised.
+
+To load primary keys from the exported table, use the `fullSync` parameter:
+
+```
+{
+	"parameters": {
+		"#token": "some-token",
+		"url": "https://connection.keboola.com/",
+		"tableName": "some-table",
+		"fullSync": true
+	}
+}
+```
+
+When `fullSync` is provided, the parameters `primaryKey` and `incremental` are ignored.
 
 ## Development
 
