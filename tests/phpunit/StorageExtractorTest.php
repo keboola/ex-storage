@@ -311,8 +311,8 @@ class StorageExtractorTest extends TestCase
         $client = new Client(['token' => getenv('KBC_TEST_TOKEN'), 'url' => getenv('KBC_TEST_URL')]);
         $tokenInfo = $client->verifyToken();
         self::assertArrayHasKey('project', $data);
-        self::assertEquals($tokenInfo['owner']['id'], $data['project']['id']);
-        self::assertEquals($tokenInfo['owner']['name'], $data['project']['name']);
+        self::assertEquals($tokenInfo['owner']['id'], $data['project']['projectId']);
+        self::assertEquals($tokenInfo['owner']['name'], $data['project']['projectName']);
     }
 
     public function testActionInvalidToken(): void

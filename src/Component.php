@@ -20,6 +20,7 @@ class Component extends BaseComponent
 
     private const ACTION_INFO = 'info';
 
+    private const ACTION_SOURCE_INFO = 'sourceInfo';
 
     public function run(): void
     {
@@ -39,10 +40,12 @@ class Component extends BaseComponent
                     ]);
                     break;
                 case self::ACTION_INFO:
+                    echo \GuzzleHttp\json_encode($this->getProjectInfo($authorization));
+                    break;
+                case self::ACTION_SOURCE_INFO:
                     echo \GuzzleHttp\json_encode([
-                        'projectId' => $authorization->getAuthorizedProjectId(),
-                        'projectName' => $authorization->getAuthorizedProjectName(),
-                        'bucket' => $bucket,
+                        'tables' => $this->listTables($client, $bucket),
+                        'project' => $this->getProjectInfo($authorization),
                     ]);
                     break;
                 default:
@@ -107,7 +110,7 @@ class Component extends BaseComponent
     private function listTables(Client $client, string $bucket): array
     {
         $tables = $client->listTables($bucket);
-        array_walk($tables, function (&$value) : void {
+        array_walk($tables, function (&$value): void {
             $value = [
                 'name' => $value['name'],
                 'primaryKey' => $value['primaryKey'],
@@ -141,12 +144,12 @@ class Component extends BaseComponent
         return ConfigDefinition::class;
     }
 
-    private function getProjectInfo(Client $client): array
+    private function getProjectInfo(Authorization $authorization): array
     {
-        $tokenInfo = $client->verifyToken();
         return [
-            'name' => $tokenInfo['owner']['name'],
-            'id' => $tokenInfo['owner']['id'],
+            'projectId' => $authorization->getAuthorizedProjectId(),
+            'projectName' => $authorization->getAuthorizedProjectName(),
+            'bucket' => $authorization->getAuthorizedBucket(),
         ];
     }
 }
