@@ -11,6 +11,7 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\TableExporter;
+use function GuzzleHttp\json_encode;
 
 class Component extends BaseComponent
 {
@@ -35,15 +36,15 @@ class Component extends BaseComponent
                     $this->extract($client, $config, $bucket);
                     break;
                 case self::ACTION_LIST:
-                    echo \GuzzleHttp\json_encode([
+                    echo json_encode([
                         'tables' => $this->listTables($client, $bucket),
                     ]);
                     break;
                 case self::ACTION_INFO:
-                    echo \GuzzleHttp\json_encode($this->getProjectInfo($authorization));
+                    echo json_encode($this->getProjectInfo($authorization));
                     break;
                 case self::ACTION_SOURCE_INFO:
-                    echo \GuzzleHttp\json_encode([
+                    echo json_encode([
                         'tables' => $this->listTables($client, $bucket),
                         'project' => $this->getProjectInfo($authorization),
                     ]);

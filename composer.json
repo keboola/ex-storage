@@ -4,19 +4,19 @@
     "description": "Storage API Extractor",
     "type": "project",
     "require": {
-        "php": "^7.2",
-        "keboola/php-component": "^4.0",
-        "keboola/storage-api-client": "^10.1"
+        "php": "^7.4",
+        "keboola/php-component": "^8.3",
+        "keboola/storage-api-client": "^12.6"
     },
     "require-dev": {
         "ext-json": "*",
-        "keboola/coding-standard": "^9.0",
-        "keboola/datadir-tests": "^1.0",
-        "keboola/php-temp": "^1.0",
-        "php-parallel-lint/php-parallel-lint": "^1.2",
-        "phpstan/phpstan": "^0.12.25",
-        "phpunit/phpunit": "^9.1",
-        "symfony/process": "^4.0"
+        "keboola/coding-standard": ">=13.0",
+        "keboola/datadir-tests": "^5.2",
+        "keboola/php-temp": "^2.0",
+        "php-parallel-lint/php-parallel-lint": "^1.3",
+        "phpstan/phpstan": "^0.12.99",
+        "phpunit/phpunit": "^9.5",
+        "symfony/process": "^5.3"
     },
     "autoload": {
         "psr-4": {
@@ -34,7 +34,7 @@
             "@tests-phpunit"
         ],
 
-        "phpstan": "phpstan analyse ./src ./tests --level=max --no-progress -c phpstan.neon",
+        "phpstan": "phpstan analyse --no-progress -c phpstan.neon",
         "phpcs": "phpcs -n --ignore=vendor --extensions=php .",
         "phpcbf": "phpcbf -n --ignore=vendor --extensions=php .",
         "phplint": "parallel-lint -j 10 --exclude vendor .",
