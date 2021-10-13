@@ -23,7 +23,7 @@ class Component extends BaseComponent
 
     private const ACTION_SOURCE_INFO = 'sourceInfo';
 
-    public function run(): void
+    protected function run(): void
     {
         try {
             /** @var Config $config */
