@@ -11,6 +11,7 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Metadata;
 use Keboola\StorageApi\TableExporter;
+use function GuzzleHttp\json_encode;
 
 class Component extends BaseComponent
 {
@@ -22,35 +23,69 @@ class Component extends BaseComponent
 
     private const ACTION_SOURCE_INFO = 'sourceInfo';
 
-    public function run(): void
+    private Client $client;
+    private Authorization $authorization;
+
+    protected function getSyncActions(): array
+    {
+        return [
+            self::ACTION_LIST => 'listTablesAction',
+            self::ACTION_INFO => 'projectInfoAction',
+            self::ACTION_SOURCE_INFO => 'sourceInfoAction',
+        ];
+    }
+
+    protected function listTablesAction(): array
+    {
+        $this->authorize();
+        $bucket = $this->authorization->getAuthorizedBucket();
+        try {
+            return ['tables' => $this->listTables($this->client, $bucket)];
+        } catch (ClientException $e) {
+            throw new UserException($e->getMessage());
+        }
+    }
+
+    protected function projectInfoAction(): array
+    {
+        $this->authorize();
+        return $this->getProjectInfo($this->authorization);
+    }
+
+    protected function sourceInfoAction(): array
+    {
+        $this->authorize();
+        $bucket = $this->authorization->getAuthorizedBucket();
+        try {
+            return [
+                'tables' => $this->listTables($this->client, $bucket),
+                'project' => $this->getProjectInfo($this->authorization),
+            ];
+        } catch (ClientException $e) {
+            throw new UserException($e->getMessage());
+        }
+    }
+
+    protected function run(): void
+    {
+        /** @var Config $config */
+        $config = $this->getConfig();
+        $this->authorize();
+        $bucket = $this->authorization->getAuthorizedBucket();
+        try {
+            $this->extract($this->client, $config, $bucket);
+        } catch (ClientException $e) {
+            throw new UserException($e->getMessage());
+        }
+    }
+
+    private function authorize(): void
     {
         try {
             /** @var Config $config */
             $config = $this->getConfig();
-            $client = new Client(['token' => $config->getToken(), 'url' => $config->getUrl()]);
-            $authorization = new Authorization($client);
-            $bucket = $authorization->getAuthorizedBucket();
-            switch ($config->getAction()) {
-                case self::ACTION_RUN:
-                    $this->extract($client, $config, $bucket);
-                    break;
-                case self::ACTION_LIST:
-                    echo \GuzzleHttp\json_encode([
-                        'tables' => $this->listTables($client, $bucket),
-                    ]);
-                    break;
-                case self::ACTION_INFO:
-                    echo \GuzzleHttp\json_encode($this->getProjectInfo($authorization));
-                    break;
-                case self::ACTION_SOURCE_INFO:
-                    echo \GuzzleHttp\json_encode([
-                        'tables' => $this->listTables($client, $bucket),
-                        'project' => $this->getProjectInfo($authorization),
-                    ]);
-                    break;
-                default:
-                    throw new UserException(sprintf('Unknown action "%s"', $config->getAction()));
-            }
+            $this->client = new Client(['token' => $config->getToken(), 'url' => $config->getUrl()]);
+            $this->authorization = new Authorization($this->client);
         } catch (ClientException $e) {
             throw new UserException($e->getMessage());
         }

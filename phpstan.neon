@@ -1,5 +1,9 @@
 parameters:
+    level: max
     checkMissingIterableValueType: false
+    paths:
+        - src
+        - tests
     ignoreErrors:
         - '#Cannot call method scalarNode\(\) on Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface\|null\.#'
         - '#function get_class expects object, Throwable\|null given\.#'
