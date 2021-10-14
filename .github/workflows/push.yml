@@ -6,7 +6,8 @@ env:
   KBC_DEVELOPERPORTAL_VENDOR: "keboola"
   KBC_DEVELOPERPORTAL_USERNAME: "keboola+ex_storage_gh_actions"
   KBC_DEVELOPERPORTAL_PASSWORD: ${{ secrets.KBC_DEVELOPERPORTAL_PASSWORD }}
-  KBC_APP_TEST_CONFIG_ID: 393916936
+  # https://connection.keboola.com/admin/projects/2703/extractors/keboola.ex-storage/764729155
+  KBC_APP_TEST_CONFIG_ID: 764729155
   KBC_TEST_BUCKET: in.c-ex-storage
   KBC_TEST_URL: https://connection.keboola.com/
   KBC_TEST_TOKEN: ${{ secrets.KBC_TEST_TOKEN }}
