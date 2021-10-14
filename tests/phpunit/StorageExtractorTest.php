@@ -27,8 +27,8 @@ class StorageExtractorTest extends TestCase
         ) {
             throw new Exception('KBC_TEST_TOKEN, KBC_TEST_WRITE_TOKEN, KBC_TEST_URL or KBC_TEST_BUCKET is empty');
         }
-        echo 'Test token: ' . substr((string) getenv('KBC_TEST_TOKEN'), 0, 10);
-        echo 'Write  token: ' . substr((string) getenv('KBC_TEST_WRITE_TOKEN'), 0, 10);
+        echo 'Test token: ' . substr((string) getenv('KBC_TEST_TOKEN'), 0, 11) . "\n";
+        echo 'Write  token: ' . substr((string) getenv('KBC_TEST_WRITE_TOKEN'), 0, 11) . "\n";
         $this->client = new Client([
             'token' => getenv('KBC_TEST_WRITE_TOKEN'),
             'url' => getenv('KBC_TEST_URL'),
@@ -74,7 +74,7 @@ class StorageExtractorTest extends TestCase
             $rows
         );
         self::assertFileExists($baseDir . '/out/tables/some-table-1.csv.manifest');
-        $data = (string) json_decode(
+        $data = json_decode(
             (string) file_get_contents($baseDir . '/out/tables/some-table-1.csv.manifest'),
             true
         );
@@ -226,7 +226,7 @@ class StorageExtractorTest extends TestCase
             $rows
         );
         self::assertFileExists($baseDir . '/out/tables/some-table-4.csv.manifest');
-        $data = (string) json_decode(
+        $data = json_decode(
             (string) file_get_contents($baseDir . '/out/tables/some-table-4.csv.manifest'),
             true
         );
@@ -369,7 +369,7 @@ class StorageExtractorTest extends TestCase
             $rows
         );
         self::assertFileExists($baseDir . '/out/tables/some-table-1.csv.manifest');
-        $data = (string) json_decode(
+        $data = json_decode(
             (string) file_get_contents($baseDir . '/out/tables/some-table-1.csv.manifest'),
             true
         );
@@ -414,7 +414,7 @@ class StorageExtractorTest extends TestCase
             $rows
         );
         self::assertFileExists($baseDir . '/out/tables/some-table-1.csv.manifest');
-        $data = (string) json_decode(
+        $data = json_decode(
             (string) file_get_contents($baseDir . '/out/tables/some-table-1.csv.manifest'),
             true
         );
@@ -457,7 +457,7 @@ class StorageExtractorTest extends TestCase
             $rows
         );
         self::assertFileExists($baseDir . '/out/tables/some-table-1.csv.manifest');
-        $data = (string) json_decode(
+        $data = json_decode(
             (string) file_get_contents($baseDir . '/out/tables/some-table-1.csv.manifest'),
             true
         );
