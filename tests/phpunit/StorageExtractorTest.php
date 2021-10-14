@@ -27,6 +27,8 @@ class StorageExtractorTest extends TestCase
         ) {
             throw new Exception('KBC_TEST_TOKEN, KBC_TEST_WRITE_TOKEN, KBC_TEST_URL or KBC_TEST_BUCKET is empty');
         }
+        echo 'Test token: ' . substr((string) getenv('KBC_TEST_TOKEN'), 0, 10);
+        echo 'Write  token: ' . substr((string) getenv('KBC_TEST_WRITE_TOKEN'), 0, 10);
         $this->client = new Client([
             'token' => getenv('KBC_TEST_WRITE_TOKEN'),
             'url' => getenv('KBC_TEST_URL'),
@@ -97,7 +99,7 @@ class StorageExtractorTest extends TestCase
         $app = new Component(new NullLogger());
         self::expectException(UserException::class);
         self::expectExceptionMessage('Invalid access token');
-        $app->run();
+        $app->execute();
     }
 
     public function testInvalidTokenPermissions(): void
