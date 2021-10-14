@@ -14,6 +14,10 @@ env:
   KBC_TEST_TOKEN: ${{ secrets.KBC_TEST_TOKEN }}
   KBC_TEST_WRITE_TOKEN: ${{ secrets.KBC_TEST_WRITE_TOKEN }}
   KBC_STORAGE_TOKEN: ${{ secrets.KBC_STORAGE_TOKEN }}
+
+  # DockerHub login
+  DOCKERHUB_USER: "{{env(DOCKERHUB_USER)}}"
+  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 jobs:
   build:
     runs-on: ubuntu-latest
