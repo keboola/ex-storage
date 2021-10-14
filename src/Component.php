@@ -73,13 +73,13 @@ class Component extends BaseComponent
         $this->authorize();
         $bucket = $this->authorization->getAuthorizedBucket();
         try {
-            $this->extract($client, $config, $bucket);
+            $this->extract($this->client, $config, $bucket);
         } catch (ClientException $e) {
             throw new UserException($e->getMessage());
         }
     }
 
-    private function authorize()
+    private function authorize(): void
     {
         try {
             /** @var Config $config */
