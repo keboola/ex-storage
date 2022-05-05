@@ -5,8 +5,8 @@
     "type": "project",
     "require": {
         "php": "^7.4",
-        "keboola/php-component": "^8.3",
-        "keboola/storage-api-client": "^12.6"
+        "keboola/php-component": "^9.0",
+        "keboola/storage-api-client": "^13.0"
     },
     "require-dev": {
         "ext-json": "*",
@@ -51,6 +51,9 @@
     },
     "config": {
         "sort-packages": true,
-        "optimize-autoloader": true
+        "optimize-autoloader": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     }
 }
