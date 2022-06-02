@@ -118,3 +118,7 @@ The following environment variables have to be set:
 # Integration
 
 For information about deployment and integration with KBC, please refer to the [deployment section of developers documentation](https://developers.keboola.com/extend/component/deployment/)
+
+## License
+
+MIT licensed, see [LICENSE](./LICENSE) file.
