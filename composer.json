@@ -6,7 +6,7 @@
     "require": {
         "php": "^7.4",
         "keboola/php-component": "^9.0",
-        "keboola/storage-api-client": "^13.0"
+        "keboola/storage-api-client": "^13.4"
     },
     "require-dev": {
         "ext-json": "*",
